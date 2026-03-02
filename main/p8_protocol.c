@@ -184,12 +184,23 @@ void p8_send_cec_frame(const cec_frame_t *frame) {
     xSemaphoreTake(s_tx_mutex, portMAX_DELAY);
     s_wbuf_len = 0;
 
+    /*
+     * CEC ACK semantics differ for unicast vs broadcast:
+     *   Unicast:   receiver drives bus LOW  → frame->ack=true  → P8_ACK_FLAG set
+     *   Broadcast: nobody drives LOW (= all received OK) → frame->ack=false → P8_ACK_FLAG must
+     *              still be SET, because the kernel driver maps a missing P8_ACK_FLAG to
+     *              CEC_RX_STATUS_NACK and discards the frame.
+     *              (A LOW during a broadcast ACK slot signals an error, i.e. frame->ack=true = bad.)
+     */
+    bool is_broadcast = (frame->data[0] & 0x0F) == 0x0F;
+    bool ack_ok = is_broadcast ? !frame->ack : frame->ack;
+
     for (int i = 0; i < frame->len; i++) {
         bool is_last = (i == frame->len - 1);
 
         uint8_t cmd = (i == 0) ? MSGCODE_FRAME_START : MSGCODE_FRAME_DATA;
-        if (is_last)     cmd |= P8_EOM_FLAG;
-        if (frame->ack)  cmd |= P8_ACK_FLAG;
+        if (is_last) cmd |= P8_EOM_FLAG;
+        if (ack_ok)  cmd |= P8_ACK_FLAG;
 
         wb_put(P8_MSGSTART);
         wb_put(cmd);
