@@ -96,7 +96,16 @@ void app_main(void) {
     ESP_ERROR_CHECK(p8_protocol_init());
 
     /* --- USB RX task --- */
-    xTaskCreate(usb_rx_task, "usb_rx", 4096, NULL, 8, NULL);
+    /*
+     * Priority 12 — above cec_tx_task (11) and cec_rx_task (10).
+     *
+     * usb_rx_task is the only path that processes P8 commands and sends
+     * COMMAND_ACCEPTED.  The kernel pulse8 driver waits 1 second for each
+     * response; if usb_rx_task is starved of s_tx_mutex the response times out.
+     * At priority 12, FreeRTOS priority inheritance ensures the mutex holder
+     * is boosted so the response is sent well within that 1-second window.
+     */
+    xTaskCreate(usb_rx_task, "usb_rx", 4096, NULL, 12, NULL);
 
     ESP_LOGI(TAG, "Ready. CEC on GPIO%d. "
              "Connect with: cec-client -t p /dev/ttyACM0", CEC_GPIO);

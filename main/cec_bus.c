@@ -536,18 +536,15 @@ static void cec_tx_task(void *arg) {
     for (;;) {
         xQueueReceive(s_tx_queue, &s_cur_tx, portMAX_DELAY);
 
-        /* ----------------------------------------------------------
-         * Wait for the bus to be idle for idle_time signal-free periods.
+        /* Wait for the bus to be idle for idle_time signal-free periods.
          *
-         * We use s_last_bus_activity_us (updated by the GPIO ISR on every
-         * edge) rather than polling bus_read() at 1ms intervals.  Polling at
-         * 1ms misses CEC '1'-bit LOW pulses (only 600µs) and can cause us to
-         * start transmitting while another device is still mid-frame.
+         * Use s_last_bus_activity_us (ISR-updated on every edge) instead of
+         * polling bus_read() at 1ms intervals — polling misses CEC '1'-bit
+         * LOW pulses (600µs) and would let us start TX while another device
+         * is still mid-frame.
          *
-         * A hard 3-second timeout prevents the task from blocking indefinitely
-         * when the bus is permanently busy.  We report TRANSMIT_FAILED_TIMEOUT_LINE
-         * (0x14) in that case.
-         * ---------------------------------------------------------- */
+         * Hard 500ms timeout (< 2100ms kernel CEC kthread limit) so we report
+         * TRANSMIT_FAILED_TIMEOUT_LINE before the kernel cancels the TX. */
         uint32_t required_idle_us = (uint32_t)s_cur_tx.idle_time * CEC_BIT_PERIOD_US;
         int64_t  wait_start_us    = esp_timer_get_time();
         bool     idle_ok          = false;
@@ -558,7 +555,7 @@ static void cec_tx_task(void *arg) {
                 idle_ok = true;
                 break;
             }
-            if ((now - wait_start_us) >= 3000000LL) { /* 3-second hard timeout */
+            if ((now - wait_start_us) >= 500000LL) {
                 break;
             }
             vTaskDelay(1);
@@ -586,8 +583,32 @@ static void cec_tx_task(void *arg) {
         bus_assert();
         esp_timer_start_once(s_tx_phase_timer, CEC_START_LOW_US);
 
-        /* Wait for transmission to finish */
-        xSemaphoreTake(s_tx_done_sem, portMAX_DELAY);
+        /* Wait for transmission to finish.
+         *
+         * Hard 600 ms limit: a max-length CEC frame (16 bytes × 10 bits ×
+         * 2.4 ms) takes ~384 ms; 600 ms gives comfortable margin.
+         *
+         * If the timer chain breaks (esp_timer_start_once fails silently,
+         * ISR race, etc.) and the semaphore is never given, this timeout
+         * fires and lets us report TRANSMIT_FAILED so the kernel's CEC
+         * kthread (2100 ms timeout) doesn't give up first and disable the
+         * adapter.  Total worst-case latency: 500 ms (idle wait) + 600 ms
+         * (TX hard limit) = 1100 ms < 2100 ms. */
+        if (xSemaphoreTake(s_tx_done_sem, pdMS_TO_TICKS(600)) != pdTRUE) {
+            /* Timer chain stalled — stop the timer, set phase to IDLE so
+             * any stray ISR callback hits the default: no-op, then clean up
+             * bus state.  vTaskDelay(2) flushes any pending ISR before we
+             * release s_tx_active. */
+            ESP_LOGW(TAG, "TX hardware timeout — timer chain stalled");
+            esp_timer_stop(s_tx_phase_timer);
+            s_tx_phase       = TX_PHASE_IDLE;
+            vTaskDelay(pdMS_TO_TICKS(2));   /* let pending ISR fire harmlessly */
+            bus_release();
+            s_tx_active      = false;
+            s_tx_success     = false;
+            s_tx_fail_reason = 0x13;        /* TRANSMIT_FAILED_TIMEOUT_DATA */
+            xSemaphoreTake(s_tx_done_sem, 0); /* drain if stray ISR gave it */
+        }
 
         /* Invoke callback */
         if (s_cur_tx.done_cb) {
@@ -667,8 +688,13 @@ esp_err_t cec_bus_init(gpio_num_t gpio, cec_rx_cb_t rx_cb) {
     /* Start RX decoder task (priority 10 = high) */
     xTaskCreate(cec_rx_task, "cec_rx", 4096, NULL, 10, &s_rx_task_handle);
 
-    /* Start TX task (priority 9) */
-    xTaskCreate(cec_tx_task, "cec_tx", 4096, NULL, 9, &s_tx_task_handle);
+    /* Start TX task at priority 11, above cec_rx_task (10).
+     * This ensures TRANSMIT_SUCCEEDED/FAILED is sent to the host promptly
+     * after CEC TX completes — even during heavy CEC RX traffic — without
+     * getting stuck waiting for s_tx_mutex behind cec_rx_task.
+     * The kernel CEC kthread times out at 2100ms; the TX result must arrive
+     * before that or the adapter is disabled. */
+    xTaskCreate(cec_tx_task, "cec_tx", 4096, NULL, 11, &s_tx_task_handle);
 
     ESP_LOGI(TAG, "CEC bus initialised on GPIO%d", gpio);
     return ESP_OK;
