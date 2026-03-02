@@ -4,14 +4,14 @@
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/flash.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/bootloader.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/_project_elf_src.dir
-/home/michal/Development/esp32-p8/esp32/build/CMakeFiles/esp32-p8.elf.dir
+/home/michal/Development/esp32-p8/esp32/build/CMakeFiles/impulse-cec.elf.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/size.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/size-files.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/size-components.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/uf2.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/uf2-app.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/__ldgen_output_sections.ld.dir
-/home/michal/Development/esp32-p8/esp32/build/CMakeFiles/gen_esp32-p8_binary.dir
+/home/michal/Development/esp32-p8/esp32/build/CMakeFiles/gen_impulse-cec_binary.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/gen_project_binary.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/app.dir
 /home/michal/Development/esp32-p8/esp32/build/CMakeFiles/app-flash.dir

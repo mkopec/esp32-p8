@@ -1,5 +1,5 @@
 /*
- * tusb_config.h — TinyUSB configuration for esp32-p8 RP2350 build.
+ * tusb_config.h — TinyUSB configuration for impulse-cec RP2350 build.
  *
  * CFG_TUSB_MCU is injected by the Pico SDK CMake integration.
  * We only need to configure the device-side CDC class here.
@@ -9,7 +9,9 @@
 
 /* ---- Controller and OS ---- */
 #define CFG_TUSB_RHPORT0_MODE    OPT_MODE_DEVICE
+#ifndef CFG_TUSB_OS
 #define CFG_TUSB_OS              OPT_OS_NONE   /* bare-metal, no RTOS */
+#endif
 
 /* ---- Device-side classes ---- */
 #define CFG_TUD_CDC              1    /* one CDC ACM interface */

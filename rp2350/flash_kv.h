@@ -40,8 +40,11 @@ typedef struct __attribute__((packed)) {
     uint16_t logical_addr_mask;
     uint16_t physical_addr;
     char     osd_name[14];
-    uint8_t  _pad2[256 - 24];
+    uint8_t  _pad2[256 - 28];
 } flash_settings_t;
+
+_Static_assert(sizeof(flash_settings_t) == 256,
+               "flash_settings_t must be exactly one flash page (256 bytes)");
 
 /* Initialise: load from flash if magic matches, otherwise use defaults. */
 void flash_kv_init(void);

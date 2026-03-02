@@ -1,0 +1,6 @@
+/home/michal/Development/esp32-p8/rp2350/build/_deps/picotool/picotool
+/home/michal/Development/esp32-p8/rp2350/build/_deps/picotool/picotoolTargets.cmake
+/home/michal/Development/esp32-p8/rp2350/build/_deps/picotool/picotoolTargets-release.cmake
+/home/michal/Development/esp32-p8/rp2350/build/_deps/picotool/picotoolConfig.cmake
+/home/michal/Development/esp32-p8/rp2350/build/_deps/picotool/picotoolConfigVersion.cmake
+/home/michal/Development/esp32-p8/rp2350/build/_deps/picotool/enc_bootloader.elf

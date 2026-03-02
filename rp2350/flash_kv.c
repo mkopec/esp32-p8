@@ -60,8 +60,8 @@ void flash_kv_init(void) {
         s_settings._pad1             = 0xFF;
         s_settings.logical_addr_mask = 0x0000;
         s_settings.physical_addr     = 0x1000; /* 1.0.0.0 */
-        strlcpy(s_settings.osd_name, "ESP32-P8", sizeof(s_settings.osd_name));
-        memset(s_settings._pad2, 0xFF, sizeof(s_settings._pad2));
+        strlcpy(s_settings.osd_name, "Impulse-CEC", sizeof(s_settings.osd_name));
+        memset(s_settings._pad2,  0xFF, sizeof(s_settings._pad2));
     }
     s_dirty = false;
 }

@@ -1,6 +1,8 @@
-# Pulse-Eight CEC Dongle
+# Impulse CEC
 
-A Pulse-Eight compatible USB CEC adapter that speaks the P8 binary protocol, compatible with both **libCEC** (`cec-client`) and the **Linux kernel `pulse8-cec` driver** (`inputattach`).
+A USB CEC dongle for the Seeed XIAO ESP32-C6 and XIAO RP2350. It bit-bangs the HDMI CEC bus and exposes it over USB serial using the open P8 adapter protocol, making it work out of the box with **libCEC** (`cec-client`) and the **Linux kernel `pulse8-cec` driver** (`inputattach`).
+
+> **Note:** This project is not affiliated with or endorsed by Pulse-Eight Ltd. "Pulse-Eight" is a trademark of Pulse-Eight Ltd. The P8 serial protocol is an open, documented wire format independently implemented here.
 
 Supports two boards:
 
@@ -44,7 +46,7 @@ Run `make help` for all available targets (flash, monitor, clean, …).
 
 **ESP32-C6:** requires [ESP-IDF v6.x](https://docs.espressif.com/projects/esp-idf/en/latest/esp32c6/). Source `export.sh` in each new shell before building.
 
-**RP2350:** requires the [Pico SDK](https://github.com/raspberrypi/pico-sdk) and a CMake ≥ 3.13 + ARM toolchain. Set `PICO_SDK_PATH` in the environment or on the `make` command line.
+**RP2350:** requires the [Pico SDK](https://github.com/raspberrypi/pico-sdk) and CMake ≥ 3.13 + an ARM toolchain. Set `PICO_SDK_PATH` in the environment or on the `make` command line.
 
 ## Flashing
 
@@ -60,7 +62,7 @@ make flash-esp32 PORT=/dev/ttyACM0
 make flash-rp2350       # uses picotool if available
 ```
 
-Or manually: hold BOOTSEL, plug in the board, then copy `rp2350/build/esp32-p8-rp2350.uf2` to the `RPI-RP2` drive.
+Or manually: hold BOOTSEL, plug in the board, then copy `rp2350/build/impulse-cec.uf2` to the `RPI-RP2` drive.
 
 ## Usage
 
@@ -70,11 +72,11 @@ Or manually: hold BOOTSEL, plug in the board, then copy `rp2350/build/esp32-p8-r
 cec-client -t p /dev/ttyACM0
 ```
 
-The `-t p` flag selects Pulse-Eight adapter type. Specify the port explicitly — neither board's VID:PID is registered for libCEC auto-detection yet. On macOS use `/dev/cu.usbmodem*`; on Windows use `COMx`.
+The `-t p` flag selects the P8 adapter protocol. Specify the port explicitly — neither board's VID:PID triggers libCEC auto-detection yet. On macOS use `/dev/cu.usbmodem*`; on Windows use `COMx`.
 
 ### Linux kernel driver (inputattach)
 
-The `pulse8-cec` driver exposes the adapter as a standard Linux CEC device. TV remote presses generate input events; CEC commands can be sent with `cec-ctl`.
+The kernel `pulse8-cec` driver speaks the same P8 protocol and exposes the dongle as a standard Linux CEC device. TV remote button presses generate input events; CEC commands can be sent with `cec-ctl`.
 
 #### One-time system setup
 
@@ -85,7 +87,7 @@ sudo modprobe -r pulse8-cec && sudo modprobe pulse8-cec
 
 `persistent_config=1` is required for the driver to automatically claim a logical address on startup.
 
-#### Attach the adapter
+#### Attach the dongle
 
 ```bash
 sudo inputattach -p8 /dev/ttyACM0
@@ -96,19 +98,19 @@ The driver sets PA=1.0.0.0, claims logical address 4 (Playback Device), and enab
 #### Alternative: udev rule (no modprobe change needed)
 
 ```
-# /etc/udev/rules.d/99-cec-pulse8-pa.rules
+# /etc/udev/rules.d/99-cec-pa.rules
 SUBSYSTEM=="cec", ACTION=="add", RUN+="/usr/bin/cec-ctl -d /dev/%k -p 1.0.0.0"
 ```
 
 ## Architecture
 
-Both targets implement the same P8 protocol logic (`shared/p8_protocol.c`) over a platform abstraction layer (`shared/platform.h`). The CEC driver is platform-specific.
+Both targets share the same protocol implementation (`shared/p8_protocol.c`) through a thin platform abstraction layer (`shared/platform.h`). The CEC bus driver is platform-specific.
 
 ```
 USB (CDC ACM)
       │
       ▼
-p8_protocol.c      shared — Pulse-Eight binary protocol parser/encoder
+p8_protocol.c      shared — P8 serial protocol parser/encoder
       │
       ▼
 cec_bus.c          platform-specific — open-drain bit-bang CEC driver
@@ -124,7 +126,7 @@ HDMI CEC line
 ## Project Structure
 
 ```
-esp32-p8/
+impulse-cec/
 ├── Makefile
 ├── shared/                 — portable sources (both targets)
 │   ├── cec_bus.h           — CEC driver interface + portability typedefs

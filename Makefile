@@ -22,7 +22,7 @@ PICO_SDK_PATH ?= $(HOME)/Development/pico-sdk
 PICO_PLATFORM ?= rp2350-arm-s
 
 RP2350_BUILD  := rp2350/build
-RP2350_UF2    := $(RP2350_BUILD)/esp32-p8-rp2350.uf2
+RP2350_UF2    := $(RP2350_BUILD)/impulse-cec.uf2
 
 # ------------------------------------------------------------------ #
 # Default: show help                                                  #

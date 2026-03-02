@@ -87,7 +87,7 @@ static uint16_t const s_lang_table[] = {
 
 /* String table (indices 1..): manufacturer, product, serial, CDC interface. */
 static char const *const s_string_table[] = {
-    "esp32-p8",               /* 1: Manufacturer */
+    "impulse-cec",            /* 1: Manufacturer */
     "Pulse-Eight CEC Adapter",/* 2: Product */
     "000001",                 /* 3: Serial number */
     "CDC Data",               /* 4: CDC interface name */

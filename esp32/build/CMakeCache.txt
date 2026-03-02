@@ -219,7 +219,7 @@ CMAKE_PROJECT_DESCRIPTION:STATIC=
 CMAKE_PROJECT_HOMEPAGE_URL:STATIC=
 
 //Value Computed by CMake
-CMAKE_PROJECT_NAME:STATIC=esp32-p8
+CMAKE_PROJECT_NAME:STATIC=impulse-cec
 
 //Value Computed by CMake
 CMAKE_PROJECT_SPDX_LICENSE:STATIC=
@@ -393,6 +393,15 @@ esp32-p8_SOURCE_DIR:STATIC=/home/michal/Development/esp32-p8/esp32
 
 //Dependencies for the target
 everest_LIB_DEPENDS:STATIC=general;__idf_cxx;general;__idf_esp_libc;general;__idf_freertos;general;__idf_esp_hw_support;general;__idf_heap;general;__idf_log;general;__idf_soc;general;__idf_hal;general;__idf_esp_rom;general;__idf_esp_common;general;__idf_esp_system;general;__idf_esp_stdio;general;__idf_riscv;
+
+//Value Computed by CMake
+impulse-cec_BINARY_DIR:STATIC=/home/michal/Development/esp32-p8/esp32/build
+
+//Value Computed by CMake
+impulse-cec_IS_TOP_LEVEL:STATIC=ON
+
+//Value Computed by CMake
+impulse-cec_SOURCE_DIR:STATIC=/home/michal/Development/esp32-p8/esp32
 
 //Dependencies for the target
 mbedcrypto_LIB_DEPENDS:STATIC=general;__idf_cxx;general;__idf_esp_libc;general;__idf_freertos;general;__idf_esp_hw_support;general;__idf_heap;general;__idf_log;general;__idf_soc;general;__idf_hal;general;__idf_esp_rom;general;__idf_esp_common;general;__idf_esp_system;general;__idf_esp_stdio;general;__idf_riscv;general;everest;general;p256m;general;idf::esp_security;general;idf::esp_mm;

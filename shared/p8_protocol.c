@@ -49,7 +49,7 @@ static void settings_load(void) {
     s_cfg.hdmi_version         = platform_kv_get_u8("hdmi_ver",   0x05);
 
     if (!platform_kv_get_str("osd_name", s_cfg.osd_name, sizeof(s_cfg.osd_name))) {
-        strlcpy(s_cfg.osd_name, "ESP32-P8", sizeof(s_cfg.osd_name));
+        strlcpy(s_cfg.osd_name, "Impulse-CEC", sizeof(s_cfg.osd_name));
     }
 }
 
