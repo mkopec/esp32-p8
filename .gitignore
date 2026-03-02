@@ -1,0 +1,13 @@
+# Build output
+build/
+esp32/build/
+rp2350/build/
+
+# ESP-IDF generated config (sdkconfig is committed; sdkconfig.old is not)
+esp32/sdkconfig.old
+
+# Editor / IDE
+.cache/
+.vscode/
+*.swp
+*.swo
