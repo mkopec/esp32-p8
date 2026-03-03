@@ -22,7 +22,7 @@ Supports two boards:
 | XIAO pad | ESP32-C6 GPIO | RP2350 GPIO | Connect to   |
 |----------|---------------|-------------|--------------|
 | D3       | GPIO21        | GPIO5       | HDMI CEC pin |
-| GND      | —             | —           | HDMI GND     |
+| GND      | —             | —           | HDMI CEC GND |
 
 The firmware enables an internal pull-up on the CEC line (~47kΩ on ESP32-C6, configurable on RP2350). No external pull-up is required for direct connections or short cables. For long cable runs, an optional 27kΩ resistor from CEC to 3.3V (paralleling to ~18kΩ) improves signal integrity.
 
